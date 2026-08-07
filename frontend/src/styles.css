@@ -206,8 +206,8 @@
   width: auto;
   height: auto;
   min-height: 0;
-  max-width: min(78%, 640px);
-  max-height: 76%;
+  max-width: min(70%, 560px);
+  max-height: min(58%, 420px);
   object-fit: contain;
   object-position: center;
   margin: auto;
@@ -219,7 +219,7 @@
   }
 
   .graph-image {
-    max-width: 88%;
-    max-height: 80%;
+    max-width: 82%;
+    max-height: min(64%, 350px);
   }
 }
