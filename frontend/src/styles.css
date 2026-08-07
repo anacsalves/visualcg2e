@@ -194,3 +194,32 @@
 .hidden {
   display: none !important;
 }
+
+/* Visualização: mantém o PNG inteiro visível e centralizado. */
+.graph-stage {
+  display: grid;
+  place-items: center;
+  padding: 24px 24px 82px;
+}
+
+.graph-image {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  max-width: min(78%, 640px);
+  max-height: 76%;
+  object-fit: contain;
+  object-position: center;
+  margin: auto;
+}
+
+@media (max-width: 760px) {
+  .graph-stage {
+    padding: 18px 14px 72px;
+  }
+
+  .graph-image {
+    max-width: 88%;
+    max-height: 80%;
+  }
+}
