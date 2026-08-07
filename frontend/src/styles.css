@@ -206,8 +206,8 @@
   width: auto;
   height: auto;
   min-height: 0;
-  max-width: min(70%, 560px);
-  max-height: min(58%, 420px);
+  max-width: min(80%, 640px);
+  max-height: min(68%, 480px);
   object-fit: contain;
   object-position: center;
   margin: auto;
