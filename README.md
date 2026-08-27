@@ -1,63 +1,172 @@
-# Visual CG2E — projeto completo
+# Visual CG2E
 
-Projeto web integrado ao gerador de grafos enviado em `Graph-Generator.zip`.
+Interface web para geração e visualização de grafos integrada ao gerador CG2E em Python.
 
-## Execução mais simples no Windows
+O projeto mantém a lógica de geração concentrada no backend e utiliza o frontend apenas para entrada de parâmetros, apresentação dos resultados e exportação dos datasets gerados.
 
-Execute:
+## Execução no Windows
+
+Na pasta raiz do projeto, execute:
 
 ```bat
 run-backend.bat
 ```
 
-O script cria o ambiente Python, instala as dependências e inicia o sistema. Depois, abra:
+Na primeira execução, o script:
+
+1. cria o ambiente virtual em `backend/.venv`;
+2. instala as dependências Python;
+3. verifica a disponibilidade do `python-igraph`;
+4. tenta instalar `pycairo` e, se necessário, `cairocffi` para a renderização dos grafos;
+5. inicia a API e serve o frontend compilado.
+
+Depois, abra no navegador:
 
 ```text
 http://localhost:8000
 ```
 
-A documentação da API fica em:
+A documentação interativa da API fica disponível em:
 
 ```text
 http://localhost:8000/docs
 ```
 
-O frontend já está compilado em `frontend/dist` e é servido pelo próprio FastAPI. Portanto, não é necessário instalar Node.js apenas para executar a versão pronta.
+> **Importante:** não copie a pasta `backend/.venv` entre diretórios ou computadores. Se o projeto for movido ou copiado para outro local e apresentar problemas de dependências, apague `backend/.venv` e execute novamente `run-backend.bat`.
 
-## Estrutura
+## Estrutura do projeto
 
 ```text
-visual-cg2e-completo/
+Visual-CG2E/
 ├── backend/
 │   ├── app/
-│   │   ├── generators/      código central do gerador convencional e power-law
-│   │   ├── main.py          rotas da API e entrega do frontend
-│   │   ├── schemas.py       validação dos parâmetros
-│   │   └── services.py      integração do gerador com JSON
-│   └── tests/
+│   │   ├── generators/
+│   │   │   ├── convencional/   gerador convencional CG2E
+│   │   │   └── pwl/            gerador power-law
+│   │   ├── main.py              aplicação FastAPI e rotas
+│   │   ├── schemas.py           validação dos parâmetros
+│   │   └── services.py          integração entre API e geradores
+│   ├── generated_images/        imagens produzidas pelo backend
+│   ├── tests/
+│   └── requirements.txt
 ├── frontend/
-│   ├── src/                 código-fonte em TypeScript
-│   └── dist/                frontend compilado e pronto para execução
+│   ├── src/                     código-fonte TypeScript/CSS
+│   └── dist/                    frontend compilado
 ├── run-backend.bat
-├── run-frontend.bat         modo de desenvolvimento opcional
+├── run-frontend.bat
+├── run-backend.sh
+├── run-frontend.sh
+├── README.md
 └── LICENSE
 ```
 
-## Desenvolvimento do frontend
+## Funcionamento
 
-Para editar o TypeScript com Vite, mantenha o backend aberto e execute em outro terminal:
+O fluxo principal da aplicação é:
+
+```text
+Usuário
+   ↓
+Interface web
+   ↓
+API FastAPI
+   ↓
+Gerador CG2E
+   ↓
+Dados do grafo
+   ↓
+Renderização da imagem no backend
+   ↓
+Interface web
+```
+
+No modo convencional, a API chama diretamente a função `geraDataset(...)` do gerador CG2E. Dessa forma, a escolha das arestas e a estrutura matemática do grafo permanecem no gerador Python.
+
+A interface não cria nem substitui as arestas do grafo. Ela envia os parâmetros ao backend e apresenta os dados retornados.
+
+## Geração convencional
+
+O gerador convencional permite trabalhar com os seguintes tipos:
+
+- grafo simples;
+- dígrafo;
+- multigrafo;
+- multigrafo dirigido;
+- pseudógrafo;
+- pseudógrafo dirigido.
+
+Também são aceitos:
+
+- número de vértices;
+- número de componentes conexas;
+- número de arestas;
+- preferência de densidade;
+- distribuição das componentes;
+- grafos valorados;
+- peso mínimo e máximo;
+- semente;
+- geração de múltiplos datasets.
+
+O valor padrão de componentes conexas é **1**, representando um grafo conexo.
+
+## Preferência de densidade
+
+A interface oferece três opções:
+
+- **Sem preferência**;
+- **Esparso:** `d ≤ 0,2`;
+- **Denso:** `d ≥ 0,8`.
+
+A densidade é calculada em relação ao número máximo de arestas permitido para o tipo de grafo selecionado.
+
+
+## Geração power-law
+
+O projeto também integra o gerador power-law, com expoente `gamma` entre 2 e 3.
+
+Essa opção permite gerar redes em que poucos vértices concentram muitas conexões enquanto a maioria possui grau menor.
+
+## Visualização
+
+Para os grafos convencionais, a imagem é gerada no backend utilizando `python-igraph` e o layout Kamada-Kawai.
+
+A renderização depende de uma implementação Cairo disponível no ambiente Python:
+
+- `pycairo`, preferencialmente; ou
+- `cairocffi`, como alternativa de compatibilidade.
+
+Se o `igraph` não conseguir renderizar a imagem, o backend informa o erro em vez de gerar uma representação visual diferente.
+
+## Exportação
+
+A interface permite exportar:
+
+- a imagem do grafo em PNG;
+- os dados do grafo em TXT;
+- todos os PNGs de um conjunto de datasets;
+- todos os TXT de um conjunto de datasets.
+
+## Frontend
+
+O frontend compilado já está disponível em `frontend/dist` e é servido pelo FastAPI. Portanto, Node.js não é necessário para apenas executar a versão pronta.
+
+Para desenvolver ou alterar o frontend, execute em outro terminal:
 
 ```bat
 run-frontend.bat
 ```
 
-O Vite normalmente abrirá `http://localhost:5173` e encaminhará as chamadas `/api` para o backend.
-
-Depois de alterar o frontend:
+Ou manualmente:
 
 ```bash
 cd frontend
 npm install
+npm run dev
+```
+
+Depois de alterações no código-fonte:
+
+```bash
 npm run build
 ```
 
@@ -68,55 +177,42 @@ cd backend
 python -m venv .venv
 ```
 
-Windows:
+No Windows:
 
 ```bat
 .venv\Scripts\activate
 ```
 
-Linux ou macOS:
+No Linux ou macOS:
 
 ```bash
 source .venv/bin/activate
 ```
 
-Em seguida:
+Instale as dependências:
 
 ```bash
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --port 8000
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
 ```
 
-## Recursos integrados
+Para a renderização do `igraph`, instale também uma implementação Cairo caso ainda não esteja disponível:
 
-- Gerador convencional com os seis tipos de grafo.
-- Número exato de componentes conexas, inclusive quando o valor é 1.
-- Estratégias aleatória, parcialmente balanceada e balanceada.
-- Limites de arestas calculados pelo backend.
-- Gerador power-law com gamma entre 2 e 3.
-- Pesos opcionais sem alterar a estrutura produzida pelo gerador.
-- Múltiplos datasets e navegação entre eles.
-- Visualização SVG de laços, setas e arestas múltiplas.
-- Exportação em PNG, JSON, CSV e TXT.
+```bash
+python -m pip install pycairo
+```
 
-A interface limita a visualização a 300 vértices para evitar travamentos no navegador. A API aceita até 5.000 vértices.
+Se a instalação do `pycairo` não estiver disponível no ambiente:
 
-## Divisão de responsabilidades
+```bash
+python -m pip install cairocffi
+```
 
-O frontend não escolhe as arestas. Ele apenas:
+Por fim:
 
-1. envia os parâmetros à API;
-2. recebe os vértices e as arestas em JSON;
-3. calcula somente as posições visuais;
-4. desenha e exporta o resultado.
-
-A estrutura matemática dos grafos é produzida pelos módulos Python.
-
-## Código original
-
-Os módulos em `backend/app/generators` vieram do projeto enviado. Os imports foram ajustados para o formato de pacote Python. A integração web está separada em `backend/app/services.py`.
-
-A licença MIT original foi preservada no arquivo `LICENSE`.
+```bash
+python -m uvicorn app.main:app --reload --port 8000
+```
 
 ## Testes
 
@@ -131,11 +227,15 @@ Frontend:
 
 ```bash
 cd frontend
-tsc -p tsconfig.json
+npm run build
 ```
 
-## Compatibilidade com o gerador convencional original
+## Código original e integração web
 
-A API chama diretamente `geraDataset(...)`, mantendo o mesmo caminho de execução, a mesma semente, a mesma ordem das arestas e a mesma sequência de pesos do programa Python original.
+Parte dos módulos presentes em `backend/app/generators` deriva do gerador CG2E original. A integração web foi construída ao redor desses módulos para permitir que os parâmetros sejam enviados pela interface e processados pelo backend.
 
-A disposição visual pode não ser idêntica à imagem criada por `visualizacao.py`: o programa original usa o layout Kamada–Kawai do igraph, enquanto o navegador organiza os mesmos vértices e arestas com um layout SVG próprio.
+No gerador convencional, a API preserva a chamada ao motor CG2E por meio de `geraDataset(...)`. A camada web é responsável por validação de entrada, comunicação HTTP, organização dos resultados, disponibilização das imagens e exportação.
+
+## Licença
+
+Este projeto é distribuído sob a licença MIT. O aviso de copyright do código original foi preservado no arquivo [`LICENSE`](LICENSE).
