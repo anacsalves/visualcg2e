@@ -84,33 +84,15 @@ def normalized_maximum_edges(graph_type: int, number_vertices: int) -> int:
 
 
 def calculate_limits(request: LimitsRequest) -> LimitsResponse:
-    # Componentes=0 significa que o usuário não exige uma quantidade específica
-    # de componentes. Nesse caso, não aplicamos o mínimo de conectividade, pois
-    # isso impediria a geração de vários grafos esparsos.
-    if request.number_components == 0:
-        if request.graph_type in (0, 1):
-            minimum = 0
-            maximum = normalized_maximum_edges(
-                request.graph_type,
-                request.number_vertices,
-            )
-        elif request.graph_type in (20, 21):
-            # O gerador de multigrafos precisa de pelo menos duas arestas para
-            # garantir a existência de uma aresta múltipla.
-            minimum = 2
-            maximum = math.inf
-        else:
-            # O gerador de pseudógrafos precisa de ao menos uma aresta para
-            # garantir a presença de um laço.
-            minimum = 1
-            maximum = math.inf
-    else:
-        minimum, maximum = verificaAresta(
-            request.graph_type,
-            request.number_vertices,
-            request.number_components,
-        )
-
+    # O gerador original trata 0 e 1 componente pelo mesmo caminho (grafo conexo).
+    # Usamos 1 apenas no cálculo dos limites para manter a validação coerente
+    # com geraDataset(), sem alterar o motor CG2E.
+    effective_components = 1 if request.number_components == 0 else request.number_components
+    minimum, maximum = verificaAresta(
+        request.graph_type,
+        request.number_vertices,
+        effective_components,
+    )
     normalized_maximum = normalized_maximum_edges(
         request.graph_type,
         request.number_vertices,

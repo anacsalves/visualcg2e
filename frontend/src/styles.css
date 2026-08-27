@@ -206,8 +206,8 @@
   width: auto;
   height: auto;
   min-height: 0;
-  max-width: min(80%, 640px);
-  max-height: min(68%, 480px);
+  max-width: min(92%, 760px);
+  max-height: calc(100% - 18px);
   object-fit: contain;
   object-position: center;
   margin: auto;
@@ -219,7 +219,10 @@
   }
 
   .graph-image {
-    max-width: 82%;
-    max-height: min(64%, 350px);
+    max-width: 96%;
+    max-height: calc(100% - 10px);
   }
 }
+
+/* Oculta somente o indicador visual de status da API. */
+#apiStatus { display: none !important; }
