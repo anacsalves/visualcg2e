@@ -232,7 +232,9 @@ npm run build
 
 ## Código original e integração web
 
-Parte dos módulos presentes em `backend/app/generators` deriva do gerador CG2E original. A integração web foi construída ao redor desses módulos para permitir que os parâmetros sejam enviados pela interface e processados pelo backend.
+O Visual CG2E utiliza como base o gerador de grafos CG2E, desenvolvido originalmente por Gustavo Paulino. O código original do projeto está disponível em seu repositório no GitHub: [[link do repositório](https://github.com/gustavoc5/Graph-Generator)].
+
+A partir dessa base, foram desenvolvidas as adaptações necessárias para a integração com a aplicação web, incluindo a comunicação entre frontend e backend, validação dos parâmetros, visualização dos grafos gerados e recursos de exportação.
 
 No gerador convencional, a API preserva a chamada ao motor CG2E por meio de `geraDataset(...)`. A camada web é responsável por validação de entrada, comunicação HTTP, organização dos resultados, disponibilização das imagens e exportação.
 
